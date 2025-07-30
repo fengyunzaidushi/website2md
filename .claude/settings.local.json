@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mv:*)",
+      "Bash(uv venv:*)",
+      "Bash(source:*)",
+      "Bash(uv pip install:*)",
+      "Bash(website2md:*)",
+      "Bash(playwright install)",
+      "Bash(python:*)",
+      "Bash(chcp:*)",
+      "Bash(set PYTHONIOENCODING=utf-8)",
+      "Bash(PYTHONIOENCODING=utf-8 website2md \"https://docs.cursor.com/en/get-started/concepts\" --output ./test_output3 --verbose)"
+    ],
+    "deny": []
+  }
+}

@@ -72,7 +72,7 @@ def main(
     if not type:
         type = _detect_input_type(input_source)
         if verbose:
-            click.echo(f"🔍 Auto-detected type: {type}")
+            click.echo(f"Auto-detected type: {type}")
     
     # Create output directory
     os.makedirs(output, exist_ok=True)
@@ -81,43 +81,43 @@ def main(
         # Select and configure appropriate crawler
         if type == 'site':
             crawler = _create_site_crawler(max_pages)
-            click.echo(f"🌐 Crawling full website: {input_source}")
+            click.echo(f"[SITE] Crawling full website: {input_source}")
             results = asyncio.run(crawler.crawl(input_source))
             
         elif type == 'docs':
             crawler = _create_docs_crawler(max_pages, output)
-            click.echo(f"📚 Crawling documentation site: {input_source}")
+            click.echo(f"[DOCS] Crawling documentation site: {input_source}")
             results = asyncio.run(crawler.crawl_documentation_site(input_source, output))
             
         elif type == 'list':
             if os.path.isfile(input_source):
                 # URL file
                 crawler = _create_url_file_crawler(max_pages, output)
-                click.echo(f"📄 Processing URL file: {input_source}")
+                click.echo(f"[FILE] Processing URL file: {input_source}")
                 results = asyncio.run(crawler.crawl_urls_from_file(input_source, output))
             else:
                 # URL list string
                 crawler = _create_url_list_crawler(max_pages, output)
-                click.echo(f"📋 Processing URL list")
+                click.echo(f"[LIST] Processing URL list")
                 results = asyncio.run(crawler.crawl_url_list(input_source, output))
         
         else:
-            click.echo(f"❌ Unknown type: {type}", err=True)
+            click.echo(f"[ERROR] Unknown type: {type}", err=True)
             sys.exit(1)
         
         # Show summary
         if results:
-            click.echo(f"✅ Successfully processed {len(results)} pages")
-            click.echo(f"📁 Output saved to: {output}/")
+            click.echo(f"[SUCCESS] Successfully processed {len(results)} pages")
+            click.echo(f"[OUTPUT] Output saved to: {output}/")
         else:
-            click.echo("❌ No pages were successfully processed", err=True)
+            click.echo("[ERROR] No pages were successfully processed", err=True)
             sys.exit(1)
                     
     except KeyboardInterrupt:
-        click.echo("\n⏹️  Process interrupted by user", err=True)
+        click.echo("\n[INTERRUPTED] Process interrupted by user", err=True)
         sys.exit(1)
     except Exception as e:
-        click.echo(f"❌ Error: {str(e)}", err=True)
+        click.echo(f"[ERROR] Error: {str(e)}", err=True)
         if verbose:
             import traceback
             traceback.print_exc()
@@ -228,20 +228,20 @@ def validate_config(config_file: str):
         config_data = load_config(config_file)
         
         if not config_data:
-            click.echo("❌ Configuration file is empty or invalid", err=True)
+            click.echo("[ERROR] Configuration file is empty or invalid", err=True)
             sys.exit(1)
         
         # Try to create config object
         config = CrawlConfig(**config_data)
         
-        click.echo("✅ Configuration file is valid")
-        click.echo(f"📊 Max depth: {config.max_depth}")
-        click.echo(f"📊 Max pages: {config.max_pages}")
-        click.echo(f"📊 Delay: {config.delay}s")
-        click.echo(f"📊 User agent: {config.user_agent}")
+        click.echo("[VALID] Configuration file is valid")
+        click.echo(f"[INFO] Max depth: {config.max_depth}")
+        click.echo(f"[INFO] Max pages: {config.max_pages}")
+        click.echo(f"[INFO] Delay: {config.delay}s")
+        click.echo(f"[INFO] User agent: {config.user_agent}")
         
     except Exception as e:
-        click.echo(f"❌ Configuration validation failed: {str(e)}", err=True)
+        click.echo(f"[ERROR] Configuration validation failed: {str(e)}", err=True)
         sys.exit(1)
 
 

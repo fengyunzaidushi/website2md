@@ -29,6 +29,31 @@ Centralized configuration through `CrawlConfig` class (`website2md/config.py`) s
 - Performance tuning (concurrency, delays, timeouts)  
 - Browser automation settings for crawl4ai v0.6.x
 
+## Project Structure & Integration Points
+
+### Core Module Dependencies
+```
+website2md/
+├── cli.py              # CLI entry point, auto-detection logic
+├── config.py           # CrawlConfig class, shared configuration
+├── crawler.py          # Base WebCrawler class
+├── doc_crawler.py      # DocSiteCrawler, extends base crawler
+├── url_file_crawler.py # URLFileCrawler, batch file processing  
+├── url_list_crawler.py # URLListCrawler, direct URL list processing
+└── utils.py            # Shared utilities and helpers
+```
+
+### Crawler Class Hierarchy
+- **Base**: `WebCrawler` provides core crawling functionality
+- **Specialized**: `DocSiteCrawler` adds menu expansion and site mapping
+- **Batch**: `URLFileCrawler` and `URLListCrawler` handle multiple URL processing
+- **CLI Integration**: All crawlers accept `CrawlConfig` and implement standard interface
+
+### Key Integration Patterns
+- **Constructor Pattern**: `crawler = CrawlerClass(config)` + `crawler.method(input, output_dir)`
+- **Configuration Flow**: CLI → CrawlConfig → Crawler classes → crawl4ai
+- **Output Standardization**: All crawlers generate markdown files + `_crawl_summary.json`
+
 ## Development Commands
 
 ### Installation & Setup
@@ -56,26 +81,35 @@ python -m twine upload dist/website2md-*.tar.gz dist/website2md-*.whl
 rm -rf dist/* build/* *.egg-info
 ```
 
-### Testing Crawlers
+### Development Environment Setup
 ```bash
-# Test documentation crawler with real sites
-python test/test_deepwiki_final.py           # JavaScript SPA sites
-python test/test_cloudflare_workers.py       # Cloudflare Workers docs
-python test/test_url_file_crawler.py         # Batch URL processing
-python test/test_url_list_crawler.py         # Direct URL lists
+# Create virtual environment with uv (recommended)
+uv venv
+source .venv/Scripts/activate  # Windows
+source .venv/bin/activate      # Linux/Mac
 
-# Test CLI functionality
-website2md https://docs.astral.sh/uv --output ./uv_docs --verbose
-website2md urls.txt --type list --output ./batch_content
+# Install in development mode
+uv pip install -e .
+
+# Install with development dependencies
+uv pip install -e ".[dev]"
 ```
 
-### Example Usage Scripts
+### Testing & Quality Assurance
 ```bash
-# Python API examples
-python examples/enhanced_doc_crawler.py
-python examples/url_file_crawler_example.py
-python examples/interactive_url_crawler.py
-python examples/test_dynamic_menu_expansion.py
+# Run code formatting
+black website2md/
+
+# Run linting
+flake8 website2md/
+
+# Run type checking
+mypy website2md/
+
+# Test CLI functionality with real sites
+PYTHONIOENCODING=utf-8 website2md https://docs.cursor.com/en/get-started/concepts --output ./test_output --verbose
+website2md https://docs.astral.sh/uv --output ./uv_docs --verbose
+website2md urls.txt --type list --output ./batch_content
 ```
 
 ## Technology Stack & Dependencies
@@ -121,9 +155,9 @@ config = CrawlConfig(
 ### Input Type Detection Logic
 The CLI automatically detects input types based on patterns:
 
-- **📄 Site**: Full website crawling (`https://example.com`)
-- **📚 Docs**: Documentation sites (`https://docs.example.com`, `/docs/` URLs)
-- **📋 List**: URL files (`.txt` files) or comma-separated URL strings
+- **Site**: Full website crawling (`https://example.com`)
+- **Docs**: Documentation sites (`https://docs.example.com`, `/docs/` URLs)  
+- **List**: URL files (`.txt` files) or comma-separated URL strings
 
 ### Crawler Method Mapping
 ```python
@@ -207,10 +241,26 @@ Each markdown file contains:
 
 ## Common Troubleshooting
 
+### Windows Encoding Issues (GBK Codec Errors)
+- **Symptom**: `'gbk' codec can't encode character` errors during crawling
+- **Solution**: Set UTF-8 encoding before running CLI commands:
+  ```bash
+  PYTHONIOENCODING=utf-8 website2md [url] --output [dir]
+  ```
+- **Root Cause**: Windows console default encoding conflicts with Unicode characters in content
+
+### Playwright Browser Installation
+- **Symptom**: `Executable doesn't exist` errors when crawling JavaScript sites
+- **Solution**: Install Playwright browsers after package installation:
+  ```bash
+  playwright install
+  ```
+- **Note**: Required for JavaScript rendering and SPA site crawling
+
 ### JavaScript Sites Returning "Loading..."
 - **Cause**: SPA sites require JavaScript execution
 - **Solution**: Enable `wait_for_content=True` and `js_wait_time=3.0+`
-- **Test**: Use `test/test_deepwiki_final.py` as reference implementation
+- **Configuration**: Ensure proper SPA settings in CrawlConfig
 
 ### Missing Navigation URLs
 - **Cause**: Expandable menus not clicked during discovery

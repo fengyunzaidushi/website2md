@@ -622,16 +622,16 @@ class DocSiteCrawler:
         self.base_domain = f"{parsed.scheme}://{parsed.netloc}"
         
         # Step 1: Extract sitemap/navigation
-        logger.info("📋 Step 1: Extracting sitemap...")
+        logger.info("Step 1: Extracting sitemap...")
         self.sitemap_urls = await self.extract_sitemap_from_page(start_url)
         
         # Add start URL to sitemap if not already there
         self.sitemap_urls.add(normalize_url(start_url))
         
-        logger.info(f"📄 Found {len(self.sitemap_urls)} unique URLs to crawl")
+        logger.info(f"Found {len(self.sitemap_urls)} unique URLs to crawl")
         
         # Step 2: Crawl each URL and save as MD
-        logger.info("🚀 Step 2: Crawling individual pages...")
+        logger.info("Step 2: Crawling individual pages...")
         
         successful_crawls = []
         failed_crawls = []
@@ -698,12 +698,12 @@ class DocSiteCrawler:
         with open(summary_file, 'w', encoding='utf-8') as f:
             json.dump(summary, f, indent=2, ensure_ascii=False)
         
-        logger.info(f"✅ Crawl completed!")
-        logger.info(f"📄 Successfully crawled: {len(successful_crawls)} pages")
-        logger.info(f"⏭️ Skipped existing: {len(skipped_crawls)} pages")
-        logger.info(f"❌ Failed: {len(failed_crawls)} pages")
-        logger.info(f"📊 Total processed: {len(successful_crawls) + len(skipped_crawls) + len(failed_crawls)} pages")
-        logger.info(f"💾 Output saved to: {output_dir}")
-        logger.info(f"📋 Summary saved to: {summary_file}")
+        logger.info(f"Crawl completed!")
+        logger.info(f"Successfully crawled: {len(successful_crawls)} pages")
+        logger.info(f"Skipped existing: {len(skipped_crawls)} pages")
+        logger.info(f"Failed: {len(failed_crawls)} pages")
+        logger.info(f"Total processed: {len(successful_crawls) + len(skipped_crawls) + len(failed_crawls)} pages")
+        logger.info(f"Output saved to: {output_dir}")
+        logger.info(f"Summary saved to: {summary_file}")
         
         return summary
