@@ -9,6 +9,7 @@ from typing import List, Dict, Any, Optional
 import re
 from urllib.parse import urlparse, urljoin
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -334,3 +335,51 @@ def format_file_size(size_bytes: int) -> str:
         i += 1
     
     return f"{size_bytes:.1f} {size_names[i]}"
+
+
+def create_safe_filename(url: str, max_length: int = 200) -> str:
+    """
+    Create a safe filename from a URL.
+    
+    Args:
+        url: The URL to convert to filename
+        max_length: Maximum length of the filename
+        
+    Returns:
+        Safe filename string
+    """
+    try:
+        parsed = urlparse(url)
+        
+        # Start with domain
+        domain = parsed.netloc.replace('www.', '')
+        
+        # Add path, replacing slashes and cleaning
+        path = parsed.path.strip('/')
+        if path:
+            # Replace path separators and clean up
+            path = path.replace('/', '_').replace('\\', '_')
+            # Remove or replace problematic characters
+            path = re.sub(r'[<>:"|?*]', '_', path)
+            filename = f"{domain}_{path}"
+        else:
+            filename = domain
+            
+        # Remove multiple underscores
+        filename = re.sub(r'_+', '_', filename)
+        
+        # Remove trailing underscores
+        filename = filename.strip('_')
+        
+        # Ensure it's not too long
+        if len(filename) > max_length:
+            filename = filename[:max_length]
+            
+        # Ensure it has safe characters only
+        filename = re.sub(r'[^\w\-_.]', '_', filename)
+        
+        return filename if filename else 'page'
+        
+    except Exception as e:
+        logger.debug(f"Error creating filename from {url}: {e}")
+        return 'page'

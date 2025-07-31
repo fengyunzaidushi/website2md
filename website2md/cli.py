@@ -13,9 +13,12 @@ from .doc_crawler import DocSiteCrawler
 from .url_file_crawler import URLFileCrawler
 from .url_list_crawler import URLListCrawler
 from .config import CrawlConfig
-from .utils import format_file_size, get_file_size
+from .utils import format_file_size, get_file_size, create_safe_filename
 import os
 import re
+import json
+from urllib.parse import urlparse
+from pathlib import Path
 
 # Setup logging
 logging.basicConfig(
@@ -94,6 +97,10 @@ def main(
             crawler = _create_site_crawler(max_pages, allow_external, allowed_domains_list)
             click.echo(f"[SITE] Crawling full website: {input_source}")
             results = asyncio.run(crawler.crawl(input_source))
+            
+            # Save results to markdown files
+            if results:
+                _save_crawl_results(results, output)
             
         elif type == 'docs':
             crawler = _create_docs_crawler(max_pages, output, allow_external, allowed_domains_list)
@@ -262,6 +269,70 @@ def validate_config(config_file: str):
     except Exception as e:
         click.echo(f"[ERROR] Configuration validation failed: {str(e)}", err=True)
         sys.exit(1)
+
+
+def _save_crawl_results(results: list, output_dir: str) -> None:
+    """Save crawl results as markdown files"""
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    
+    # Save individual markdown files
+    for result in results:
+        if not result.get('content'):
+            continue
+            
+        url = result.get('url', '')
+        title = result.get('title', '')
+        content = result.get('content', '')
+        
+        # Create filename from URL
+        filename = create_safe_filename(url)
+        if not filename.endswith('.md'):
+            filename += '.md'
+            
+        filepath = output_path / filename
+        
+        # Create markdown content with metadata
+        markdown_content = f"""# {title}
+
+**URL**: {url}
+**Crawled**: {result.get('crawl_timestamp', '')}
+
+---
+
+{content}
+"""
+        
+        # Write file
+        try:
+            with open(filepath, 'w', encoding='utf-8') as f:
+                f.write(markdown_content)
+        except Exception as e:
+            click.echo(f"[WARNING] Failed to save {filename}: {e}")
+    
+    # Save summary
+    summary = {
+        'total_pages': len(results),
+        'successful_pages': len([r for r in results if r.get('success', True)]),
+        'failed_pages': len([r for r in results if not r.get('success', True)]),
+        'crawl_summary': [
+            {
+                'url': r.get('url'),
+                'title': r.get('title', ''),
+                'status_code': r.get('status_code', 200),
+                'content_length': r.get('content_length', 0),
+                'success': r.get('success', True)
+            }
+            for r in results
+        ]
+    }
+    
+    summary_path = output_path / '_crawl_summary.json'
+    try:
+        with open(summary_path, 'w', encoding='utf-8') as f:
+            json.dump(summary, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        click.echo(f"[WARNING] Failed to save summary: {e}")
 
 
 if __name__ == '__main__':

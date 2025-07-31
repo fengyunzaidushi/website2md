@@ -17,7 +17,7 @@ except ImportError:
     raise
 
 from .config import CrawlConfig
-from .utils import save_results, is_valid_url, normalize_url
+from .utils import save_results, is_valid_url, normalize_url, should_crawl_url
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +31,7 @@ class WebCrawler:
         self.visited_urls: set = set()
         self.filters: Dict[str, Callable] = {}
         self.processors: Dict[str, Callable] = {}
+        self.base_url: Optional[str] = None
         
     async def crawl(self, start_url: str) -> List[Dict[str, Any]]:
         """
@@ -47,6 +48,7 @@ class WebCrawler:
         
         self.results = []
         self.visited_urls = set()
+        self.base_url = start_url  # Store base URL for domain filtering
         
         logger.info(f"Starting crawl from: {start_url}")
         
@@ -55,7 +57,7 @@ class WebCrawler:
             headless=self.config.headless,
             browser_type=self.config.browser_type,
             user_agent=self.config.user_agent,
-            verbose=True
+            verbose=False  # Disable verbose to avoid Windows encoding issues
         )
         
         # Add stealth mode if enabled  
@@ -104,8 +106,9 @@ class WebCrawler:
         if normalized_url in self.visited_urls:
             return
         
-        # Check domain restrictions
-        if not self._is_allowed_domain(url):
+        # Check domain restrictions using new filtering logic
+        if not self._should_crawl_url(url):
+            logger.debug(f"Skipping URL due to domain filtering: {url}")
             return
         
         self.visited_urls.add(normalized_url)
@@ -120,10 +123,10 @@ class WebCrawler:
             # Create crawler run configuration with v0.6.x API
             run_config = CrawlerRunConfig(
                 word_count_threshold=self.config.word_count_threshold,
-                cache_mode=CacheMode.BYPASS if self.config.bypass_cache else CacheMode.ENABLED,
+                cache_mode=CacheMode.BYPASS,  # Always bypass cache to avoid hash values
                 page_timeout=self.config.timeout * 1000,  # Convert to milliseconds
                 screenshot=self.config.enable_screenshot,
-                verbose=True
+                verbose=False  # Disable verbose to avoid Windows encoding issues
             )
             
             result = await crawler.arun(url=url, config=run_config)
@@ -170,7 +173,21 @@ class WebCrawler:
         
         # Add content based on configuration
         if self.config.extract_text and hasattr(result, 'markdown') and result.markdown:
-            page_data["content"] = result.markdown
+            # Debug: Check markdown content type and length
+            logger.debug(f"Markdown type: {type(result.markdown)}, length: {len(result.markdown)}")
+            if len(result.markdown) < 100:  # If suspiciously short, log the content
+                logger.warning(f"Suspiciously short markdown for {url}: {repr(result.markdown)}")
+                logger.debug(f"Result success: {result.success}")
+                logger.debug(f"Result has html: {hasattr(result, 'html')}")
+                if hasattr(result, 'html'):
+                    logger.debug(f"HTML length: {len(result.html) if result.html else 0}")
+                logger.debug(f"Result has cleaned_html: {hasattr(result, 'cleaned_html')}")
+                if hasattr(result, 'cleaned_html'):  
+                    logger.debug(f"Cleaned HTML length: {len(result.cleaned_html) if result.cleaned_html else 0}")
+            
+            # Convert StringCompatibleMarkdown to string if needed
+            content = str(result.markdown)
+            page_data["content"] = content
             
         if self.config.extract_links and hasattr(result, 'links') and result.links:
             page_data["links"] = result.links
@@ -245,7 +262,7 @@ class WebCrawler:
                 
             if href:
                 full_url = urljoin(base_url, href)
-                if is_valid_url(full_url):
+                if is_valid_url(full_url) and self._should_crawl_url(full_url):
                     extracted_links.append(full_url)
         
         # Add external links if allowed
@@ -256,29 +273,22 @@ class WebCrawler:
                 else:
                     href = str(link)
                     
-                if href and is_valid_url(href):
+                if href and is_valid_url(href) and self._should_crawl_url(href):
                     extracted_links.append(href)
         
         return extracted_links
     
-    def _is_allowed_domain(self, url: str) -> bool:
-        """Check if URL domain is allowed"""
-        domain = urlparse(url).netloc.lower()
-        
-        # Check blocked domains
-        if self.config.blocked_domains:
-            for blocked in self.config.blocked_domains:
-                if blocked.lower() in domain:
-                    return False
-        
-        # Check allowed domains
-        if self.config.allowed_domains:
-            for allowed in self.config.allowed_domains:
-                if allowed.lower() in domain:
-                    return True
-            return False
-        
-        return True
+    def _should_crawl_url(self, url: str) -> bool:
+        """Check if URL should be crawled using new domain filtering logic"""
+        if not self.base_url:
+            return True
+            
+        return should_crawl_url(
+            target_url=url,
+            base_url=self.base_url,
+            allow_external_domains=self.config.allow_external_domains,
+            allowed_domains=self.config.additional_allowed_domains
+        )
     
     def add_filter(self, name: str, filter_func: Callable) -> None:
         """Add a custom filter function"""

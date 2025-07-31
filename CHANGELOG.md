@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.6] - 2025-07-31
+
+### 🐛 重要修复 (Critical Bug Fixes)
+
+#### WebCrawler 缓存和编码问题修复
+- **修复了Windows下的编码错误**：禁用crawl4ai的verbose输出以避免GBK编码错误
+- **修复了内容哈希值问题**：强制禁用crawl4ai缓存模式，确保获取实际内容而不是缓存标识符
+- **改进了内容处理**：正确处理`StringCompatibleMarkdown`类型，确保获取真实的markdown内容
+- **增强了调试信息**：添加了详细的日志记录来诊断内容获取问题
+
+#### 技术细节
+- 将`cache_mode`设置为`CacheMode.BYPASS`以避免缓存相关的哈希值
+- 禁用`verbose=False`来避免rich库的Unicode字符编码错误
+- 添加了内容长度检查和警告，帮助识别异常的短内容
+
+### 📝 文档更新 (Documentation Updates)
+- 更新了Windows用户使用指南，推荐设置`PYTHONIOENCODING=utf-8`
+
+---
+
 ## [0.1.5] - 2025-07-31
 
 ### 🎯 新增功能 (New Features)

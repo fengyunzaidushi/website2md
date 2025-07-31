@@ -21,6 +21,7 @@ Website2MD 是一个强大的网站内容抓取和转换工具，专门用于将
 - 📋 **Batch Processing**: Process multiple URLs from files or lists
 - ⚡ **High Performance**: Async processing with smart concurrency
 - 🎯 **Content Selection**: Advanced CSS selectors and exclude patterns
+- 🔒 **Precise Domain Filtering**: Only crawl exact same subdomain by default, with flexible domain control
 
 ## Installation
 
@@ -87,6 +88,19 @@ website2md "url1,url2,url3" --type list --output ./multi-content
 # Specify type explicitly with custom settings
 website2md https://example.com --type site --max-pages 50 --output ./results
 
+# Domain filtering: Only crawl exact same subdomain (default behavior)
+website2md https://docs.anthropic.com/zh-CN/docs --output ./docs
+
+# Allow additional specific domains
+website2md https://docs.anthropic.com/zh-CN/docs \
+  --allowed-domains "console.anthropic.com,api.anthropic.com" \
+  --output ./docs
+
+# Allow all external domains (use with caution)
+website2md https://docs.anthropic.com/zh-CN/docs \
+  --allow-external \
+  --output ./docs
+
 # Windows users: Use UTF-8 encoding to avoid codec errors
 PYTHONIOENCODING=utf-8 website2md https://docs.example.com --output ./docs
 ```
@@ -115,6 +129,30 @@ Website2MD automatically detects input types based on patterns:
 - **📄 Site**: Full website crawling (`https://example.com`)
 - **📚 Docs**: Documentation sites (`https://docs.example.com`, `/docs/` URLs)
 - **📋 List**: URL files (`.txt` files) or comma-separated URL strings
+
+## Domain Filtering (New in v0.1.5)
+
+Website2MD now provides precise domain control to ensure you only crawl relevant content:
+
+### Default Behavior: Exact Subdomain Matching
+- Input: `https://docs.anthropic.com/zh-CN/docs`
+- Only crawls: `docs.anthropic.com` domain
+- Skips: `console.anthropic.com`, `www.anthropic.com`, etc.
+
+### Flexible Domain Control
+```bash
+# Include specific additional domains
+--allowed-domains "console.anthropic.com,api.anthropic.com"
+
+# Allow all external domains (use with caution)
+--allow-external
+```
+
+### Benefits
+- **Focused Content**: Only get relevant documentation pages
+- **No Pollution**: Avoid unrelated external links
+- **Better Performance**: Fewer unnecessary requests
+- **Quality Control**: Cleaner, more relevant output
 
 ## Advanced Configuration
 
