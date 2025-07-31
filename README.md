@@ -167,6 +167,127 @@ Website2MD now provides precise domain control to ensure you only crawl relevant
 - **Better Performance**: Fewer unnecessary requests
 - **Quality Control**: Cleaner, more relevant output
 
+## Content Filtering (New in v0.1.7)
+
+Website2MD supports powerful content filtering using CSS selectors to exclude unwanted elements from the crawled content.
+
+### Basic CSS Selector Syntax
+
+#### ID Selectors
+Use `#` to target elements by ID:
+```bash
+# Exclude div with id="navigation-items"
+website2md https://example.com --exclude-selectors "#navigation-items"
+
+# Exclude header with id="main-header" 
+website2md https://example.com --exclude-selectors "#main-header"
+```
+
+#### Class Selectors
+Use `.` to target elements by class:
+```bash
+# Exclude elements with class="sidebar"
+website2md https://example.com --exclude-selectors ".sidebar"
+
+# Exclude multiple classes
+website2md https://example.com --exclude-selectors ".advertisement,.popup,.cookie-banner"
+```
+
+#### Tag Selectors
+Target HTML tags directly:
+```bash
+# Exclude all nav elements
+website2md https://example.com --exclude-selectors "nav"
+
+# Exclude headers and footers
+website2md https://example.com --exclude-selectors "header,footer"
+```
+
+### Advanced Selector Examples
+
+#### Attribute Selectors
+```bash
+# Exclude elements with specific attributes
+website2md https://example.com --exclude-selectors "[data-testid='navigation']"
+
+# Exclude elements with specific attribute values
+website2md https://example.com --exclude-selectors "[role='banner']"
+```
+
+#### Descendant Selectors
+```bash
+# Exclude navigation menus inside header
+website2md https://example.com --exclude-selectors "#header .navigation-menu"
+
+# Exclude all divs inside sidebar
+website2md https://example.com --exclude-selectors ".sidebar div"
+```
+
+#### Complex Combinations
+```bash
+# Comprehensive content filtering
+website2md https://example.com \
+  --exclude-selectors "#navigation-items,.sidebar,nav,.advertisement,[data-testid='footer']" \
+  --output ./clean-content
+```
+
+### Common Use Cases
+
+#### Remove Website Navigation
+```bash
+website2md https://example.com \
+  --exclude-selectors "#navigation,nav,.navbar,.menu" \
+  --output ./content-only
+```
+
+#### Clean Documentation Sites
+```bash
+website2md https://docs.example.com \
+  --type docs \
+  --exclude-selectors ".toc,.breadcrumb,#sidebar,.docs-navigation" \
+  --output ./clean-docs
+```
+
+#### Filter Marketing Content
+```bash
+website2md https://blog.example.com \
+  --exclude-selectors ".advertisement,.cta-banner,.newsletter-signup,.social-share" \
+  --output ./articles-only
+```
+
+#### E-commerce Content Extraction
+```bash
+website2md https://shop.example.com \
+  --exclude-selectors ".price,.buy-button,.cart,.recommendations" \
+  --output ./product-info
+```
+
+### Smart Documentation Filtering
+
+For `--type docs`, user-specified selectors are automatically combined with default documentation site filters:
+
+**Default Documentation Excludes:**
+- `.sidebar`, `.nav`, `.navigation`, `#sidebar`
+- `#starlight__sidebar`, `.docs-sidebar`, `.theme-doc-sidebar-container`
+- `.header`, `.footer`, `.breadcrumb`, `.toc`
+- `.border-r-border`, `.md\\:w-64`, `.xl\\:w-72`
+
+**Example with Smart Merging:**
+```bash
+# Your selectors are added to the defaults
+website2md https://docs.example.com \
+  --type docs \
+  --exclude-selectors "#custom-banner,.advertisement" \
+  --output ./clean-docs
+```
+
+### Tips for Effective Filtering
+
+1. **Inspect Element**: Use browser developer tools to identify element selectors
+2. **Test Selectors**: Start with simple selectors and add complexity gradually
+3. **Multiple Passes**: Use `--verbose` to see what's being excluded
+4. **Verify Results**: Check the output files to ensure desired content remains
+
 ## Advanced Configuration
 
 ### Documentation Sites
