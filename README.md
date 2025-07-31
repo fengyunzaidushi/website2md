@@ -150,6 +150,92 @@ Check out the [`examples/`](examples/) directory for comprehensive Python usage 
 
 See [examples/README.md](examples/README.md) for detailed usage instructions and best practices.
 
+## 💡 Best Practices & Troubleshooting
+
+### URL Discovery Optimization
+
+For complex documentation sites or sites with dynamic content, you may get better results by explicitly specifying the crawler type:
+
+```bash
+# If auto-detection gives poor results, try 'site' type for better URL discovery
+website2md https://docs.cursor.com/en/welcome --type site --output ./docs
+
+# The 'site' type uses recursive link discovery, often finding more pages
+# than the 'docs' type which relies on menu expansion
+```
+
+### Common Issues and Solutions
+
+#### Issue: Only 1 page crawled instead of full site
+**Symptom**: Expected many pages but only got the starting page.
+
+**Solutions**:
+1. **Use `--type site`** for better URL discovery:
+   ```bash
+   website2md https://docs.example.com --type site --output ./docs
+   ```
+
+2. **Check if JavaScript is required**: Some sites need JS rendering
+   ```bash
+   website2md https://spa-site.com --type site --output ./docs
+   ```
+
+#### Issue: Content contains too much navigation/clutter
+**Symptom**: Generated markdown files contain sidebars, navigation menus, ads.
+
+**Solutions**:
+1. **Use exclude selectors** to filter unwanted content:
+   ```bash
+   website2md https://example.com --exclude-selectors "nav,aside,header,footer,.ads" --output ./clean
+   ```
+
+2. **For documentation sites**, try these common selectors:
+   ```bash
+   website2md https://docs.site.com --exclude-selectors ".sidebar,.navigation,.toc,.breadcrumb" --output ./docs
+   ```
+
+#### Issue: Windows encoding errors (GBK codec)
+**Symptom**: `'gbk' codec can't encode character` errors.
+
+**Solution**: Set UTF-8 encoding:
+```bash
+# Windows Command Prompt
+set PYTHONIOENCODING=utf-8 && website2md https://example.com --output ./docs
+
+# PowerShell
+$env:PYTHONIOENCODING="utf-8"; website2md https://example.com --output ./docs
+```
+
+#### Issue: Empty or missing content
+**Symptom**: Generated files are empty or missing expected content.
+
+**Solutions**:
+1. **Increase timeout** for slow sites:
+   ```bash
+   website2md https://slow-site.com --type site --output ./docs
+   ```
+
+2. **Check if playwright browsers are installed**:
+   ```bash
+   playwright install
+   ```
+
+### Performance Tips
+
+- **Start small**: Use `--max-pages` to test before full crawls
+- **Use appropriate delays**: Add `--delay` for rate limiting
+- **Monitor output**: Use `--verbose` to see what's happening
+- **Choose the right type**: `site` for comprehensive, `docs` for structured
+
+### Type Selection Guide
+
+| Site Type | Use `--type site` when | Use `--type docs` when |
+|-----------|------------------------|------------------------|
+| Documentation | Complex navigation, SPA-style docs | Traditional docs with clear menu structure |
+| Corporate sites | Marketing sites, blogs | API docs, help centers |
+| E-commerce | Product catalogs | Knowledge bases |
+| News sites | Article listing pages | FAQ sections |
+
 ## Input Types
 
 Website2MD automatically detects input types based on patterns:

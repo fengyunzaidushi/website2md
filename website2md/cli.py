@@ -200,8 +200,15 @@ def _create_docs_crawler(max_pages: int, output_dir: str, allow_external: bool =
     """Create crawler for documentation sites"""
     # Default documentation site exclude selectors
     default_exclude_selectors = [
-        "#navigation-items","#starlight__sidebar","#sidebar","#navigation","#nav","#toc","#table-of-contents","#breadcrumb","#breadcrumbs","#header","#footer","#site-header","#site-footer","#docs-sidebar","#sidebar-nav","#menu","#navbar","#theme-doc-toc-mobile","#pagination-nav""#aside","#theme-doc-sidebar-container",".navigation-items",".starlight__sidebar",".sidebar",".navigation",".nav",".toc",".table-of-contents",".breadcrumb",".breadcrumbs",".header",".footer",".site-header",".site-footer",".docs-sidebar",".sidebar-nav",".menu",".navbar",".theme-doc-toc-mobile",".pagination-nav"".aside",".theme-doc-sidebar-container","[data-testid='sidebar']","[data-testid='navigation']",
-        
+        "#navigation-items", "#starlight__sidebar", "#sidebar", "#navigation", "#nav", 
+        "#toc", "#table-of-contents", "#breadcrumb", "#breadcrumbs", "#header", "#footer", 
+        "#site-header", "#site-footer", "#docs-sidebar", "#sidebar-nav", "#menu", "#navbar", 
+        "#theme-doc-toc-mobile", "#pagination-nav", "#aside", "#theme-doc-sidebar-container",
+        ".navigation-items", ".starlight__sidebar", ".sidebar", ".navigation", ".nav", 
+        ".toc", ".table-of-contents", ".breadcrumb", ".breadcrumbs", ".header", ".footer", 
+        ".site-header", ".site-footer", ".docs-sidebar", ".sidebar-nav", ".menu", ".navbar", 
+        ".theme-doc-toc-mobile", ".pagination-nav", ".aside", ".theme-doc-sidebar-container",
+        "[data-testid='sidebar']", "[data-testid='navigation']"
     ]
     
     # Combine default and user-provided exclude selectors

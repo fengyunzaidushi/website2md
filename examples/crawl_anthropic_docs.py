@@ -5,7 +5,7 @@ Example: Crawl Anthropic Claude Code Documentation
 This example demonstrates how to crawl the Anthropic Claude Code documentation
 using the default exclude selectors for documentation sites.
 
-URL: https://docs.anthropic.com/zh-CN/docs/claude-code/cli-reference
+URL: https://docs.anthropic.com/zh-CN/docs/claude-code/overview
 Uses: Default documentation site exclude selectors
 """
 
@@ -21,8 +21,8 @@ async def main():
     """Main crawling function"""
     
     # Configuration
-    start_url = "https://docs.anthropic.com/zh-CN/docs/claude-code/cli-reference"
-    output_dir = "./anthropic_docs_output"
+    start_url = "https://docs.anthropic.com/zh-CN/docs/claude-code/overview"
+    output_dir = "./test_anthropic_docs_output2"
     
     print(f"🚀 Starting to crawl Anthropic Claude Code documentation...")
     print(f"📍 Start URL: {start_url}")
@@ -46,7 +46,6 @@ async def main():
         timeout=60,                       # 60 second timeout per page
         delay=1.5,                        # 1.5 second delay between requests (be respectful)
         max_concurrent_requests=2,        # Limit concurrent requests for stability
-        verbose=True                      # Enable verbose logging
     )
     
     # Create crawler instance
@@ -97,8 +96,8 @@ async def crawl_with_custom_excludes():
     print("🔧 Alternative: Custom exclude selectors + defaults")
     print("=" * 60)
     
-    start_url = "https://docs.anthropic.com/zh-CN/docs/claude-code/cli-reference"
-    output_dir = "./anthropic_docs_custom_output"
+    start_url = "https://docs.anthropic.com/zh-CN/docs/claude-code/overview"
+    output_dir = "./test_anthropic/anthropic_docs_custom_output"
     
     print(f"📍 Start URL: {start_url}")
     print(f"📁 Output directory: {output_dir}")
@@ -111,7 +110,7 @@ async def crawl_with_custom_excludes():
     config = CrawlConfig(
         max_pages=20,
         wait_for_content=True,
-        js_wait_time=3.0,
+        js_wait_time=5.0,
         expand_menus=True,
         scroll_for_content=True,
         exclude_selectors=[               # Custom selectors (will be added to defaults)
@@ -123,8 +122,7 @@ async def crawl_with_custom_excludes():
         headless=True,
         timeout=60,
         delay=1.5,
-        max_concurrent_requests=2,
-        verbose=True
+        max_concurrent_requests=2
     )
     
     crawler = DocSiteCrawler(config)

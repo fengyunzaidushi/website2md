@@ -2,6 +2,47 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.8] - 2025-07-31
+
+### 🔧 重要修复 (Critical Fixes)
+
+#### URL发现问题修复 (URL Discovery Fix)
+- **修复CLI中默认exclude_selectors格式错误**：之前所有选择器被连接成单个字符串，现在正确分离为列表
+- **修复示例脚本参数错误**：移除了CrawlConfig中不支持的`verbose`参数
+- **改进URL发现机制**：对于复杂的文档站点，推荐使用`--type site`以获得更好的URL发现效果
+
+#### 示例脚本重构 (Example Scripts Refactor)
+- **Cursor文档示例完全重写**：从DocSiteCrawler改为WebCrawler，成功抓取75个页面（vs之前的1个）
+- **添加markdown文件保存功能**：示例脚本现在能正确保存单独的markdown文件
+- **优化选择器配置**：使用更有效的选择器组合排除导航元素
+
+#### 性能和稳定性提升
+- **更好的错误处理**：改进了异常捕获和错误报告
+- **文件保存优化**：添加了完整的metadata和格式化
+- **编码问题修复**：解决了Windows环境下的Unicode字符显示问题
+
+### 💡 使用建议 (Usage Recommendations)
+
+#### 获得最佳抓取效果
+```bash
+# 对于复杂的文档站点，建议使用site类型
+website2md https://docs.cursor.com/en/welcome --type site --output ./docs
+
+# 使用优化的选择器排除导航
+website2md https://example.com --exclude-selectors "nav,aside,header,footer" --output ./clean
+```
+
+#### Python脚本改进
+- 所有examples脚本现在都能成功抓取完整站点
+- 支持自动保存为单独的markdown文件
+- 包含完整的元数据和时间戳
+
+### 🛠️ 技术改进 (Technical Improvements)
+- 修复了CLI选择器解析逻辑
+- 改进了WebCrawler与DocSiteCrawler的选择策略
+- 优化了文件命名和保存机制
+- 增强了跨平台兼容性
+
 ## [0.1.7] - 2025-07-31
 
 ### 🎯 新增功能 (New Features)
