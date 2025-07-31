@@ -125,15 +125,30 @@ from website2md.doc_crawler import DocSiteCrawler
 from website2md.url_list_crawler import URLListCrawler
 from website2md.config import CrawlConfig
 
-# Crawl documentation site
-config = CrawlConfig(max_pages=100, wait_for_content=True)
-crawler = DocSiteCrawler(config, "./output")
-results = await crawler.crawl_site("https://docs.example.com")
+# Crawl documentation site with content filtering
+config = CrawlConfig(
+    max_pages=100, 
+    wait_for_content=True,
+    exclude_selectors=["#navigation-items", ".sidebar", ".advertisement"]
+)
+crawler = DocSiteCrawler(config)
+results = await crawler.crawl_documentation_site("https://docs.example.com", "./output")
 
 # Process URL list
-url_crawler = URLListCrawler(config, "./output")
-results = await url_crawler.crawl_urls("url1,url2,url3")
+url_crawler = URLListCrawler(config)
+results = await url_crawler.crawl_url_list("url1,url2,url3", "./output")
 ```
+
+### 📝 Python Examples
+
+Check out the [`examples/`](examples/) directory for comprehensive Python usage examples:
+
+- **[crawl_cursor_docs.py](examples/crawl_cursor_docs.py)** - Crawl Cursor docs excluding `#navigation-items`
+- **[crawl_anthropic_docs.py](examples/crawl_anthropic_docs.py)** - Crawl Anthropic docs with default excludes
+- **[basic_site_crawling.py](examples/basic_site_crawling.py)** - News, blog, e-commerce filtering
+- **[advanced_filtering.py](examples/advanced_filtering.py)** - Advanced CSS selector techniques
+
+See [examples/README.md](examples/README.md) for detailed usage instructions and best practices.
 
 ## Input Types
 
