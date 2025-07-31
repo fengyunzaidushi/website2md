@@ -11,7 +11,11 @@ Excludes: div with id="navigation-items"
 
 import asyncio
 import os
+import sys
 from pathlib import Path
+
+# Add parent directory to path for local development
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from website2md.doc_crawler import DocSiteCrawler
 from website2md.config import CrawlConfig
@@ -22,7 +26,7 @@ async def main():
     
     # Configuration
     start_url = "https://docs.cursor.com/en/welcome"
-    output_dir = "./cursor_docs_output"
+    output_dir = "./test_cursor_site"
     
     print(f"🚀 Starting to crawl Cursor documentation...")
     print(f"📍 Start URL: {start_url}")

@@ -24,7 +24,8 @@
       "Bash(PYTHONIOENCODING=utf-8 website2md https://docs.anthropic.com/zh-CN/docs/claude-code/cli-reference --type site --output ./test_site --max-pages 5 --verbose)",
       "Bash(ls:*)",
       "Bash(PYTHONIOENCODING=utf-8 website2md https://docs.anthropic.com/zh-CN/docs/claude-code/cli-reference --type site --output ./test_site --max-pages 3 --verbose)",
-      "Bash(PYTHONIOENCODING=utf-8 website2md https://docs.anthropic.com/zh-CN/docs/claude-code/cli-reference --type site --output ./test_anthropic_debug --max-pages 5 --verbose)"
+      "Bash(PYTHONIOENCODING=utf-8 website2md https://docs.anthropic.com/zh-CN/docs/claude-code/cli-reference --type site --output ./test_anthropic_debug --max-pages 5 --verbose)",
+      "Bash(mkdir:*)"
     ],
     "deny": []
   }
