@@ -15,7 +15,9 @@
       "Bash(.venv/Scripts/pip install:*)",
       "Bash(PYTHONIOENCODING=utf-8 python test_domain_filtering.py)",
       "Bash(PYTHONIOENCODING=utf-8 website2md \"https://docs.anthropic.com/zh-CN/docs/claude-code/cli-reference\" --output ./test_domain_filter --max-pages 10 --verbose)",
-      "Bash(PYTHONIOENCODING=utf-8 website2md --help)"
+      "Bash(PYTHONIOENCODING=utf-8 website2md --help)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": []
   }
