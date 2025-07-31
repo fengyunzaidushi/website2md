@@ -22,7 +22,7 @@ async def crawl_news_site():
     
     # Configuration for news site
     start_url = "https://example-news.com"  # Replace with actual news site
-    output_dir = "./news_output"
+    output_dir = "./test_news_output"
     
     print(f"📍 URL: {start_url}")
     print(f"📁 Output: {output_dir}")

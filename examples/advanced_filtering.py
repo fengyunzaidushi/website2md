@@ -22,7 +22,7 @@ async def attribute_based_filtering():
     print("-" * 45)
     
     start_url = "https://example.com"
-    output_dir = "./attribute_filtering_output"
+    output_dir = "./test_filtering_output"
     
     print(f"📍 URL: {start_url}")
     print(f"📁 Output: {output_dir}")

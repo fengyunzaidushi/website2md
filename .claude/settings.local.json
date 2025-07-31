@@ -25,7 +25,18 @@
       "Bash(ls:*)",
       "Bash(PYTHONIOENCODING=utf-8 website2md https://docs.anthropic.com/zh-CN/docs/claude-code/cli-reference --type site --output ./test_site --max-pages 3 --verbose)",
       "Bash(PYTHONIOENCODING=utf-8 website2md https://docs.anthropic.com/zh-CN/docs/claude-code/cli-reference --type site --output ./test_anthropic_debug --max-pages 5 --verbose)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(pip install:*)",
+      "Bash(playwright install:*)",
+      "Bash(PYTHONIOENCODING=utf-8 python examples/crawl_cursor_docs.py)",
+      "WebFetch(domain:docs.cursor.com)",
+      "Bash(PYTHONIOENCODING=utf-8 website2md https://docs.cursor.com/en/background-agent --exclude-selectors \".docs-sidebar,nav,[role=''navigation'']\" --output ./test_cursor_nav --verbose)",
+      "Bash(PYTHONIOENCODING=utf-8 website2md https://docs.cursor.com/en/background-agent --exclude-selectors \"nav,aside,[role=''navigation''],[data-testid*=''nav''],.mintlify-sidebar\" --output ./test_cursor_clean --verbose)",
+      "Bash(PYTHONIOENCODING=utf-8 website2md https://docs.cursor.com/en/background-agent --exclude-selectors \"header,footer,.mintlify\" --output ./test_cursor_content --verbose)",
+      "Bash(PYTHONIOENCODING=utf-8 python debug_cursor_sitemap.py)",
+      "Bash(PYTHONIOENCODING=utf-8 website2md https://docs.anthropic.com/zh-CN/docs/claude-code/overview --type site --output ./test_anthropic --verbose)",
+      "Bash(PYTHONIOENCODING=utf-8 website2md https://docs.cursor.com/en/welcome --type site --output ./test_cursor_full --verbose)",
+      "Bash(PYTHONIOENCODING=utf-8 python -m twine upload dist/website2md-0.1.8*)"
     ],
     "deny": []
   }
