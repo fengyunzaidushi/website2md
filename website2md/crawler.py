@@ -129,6 +129,11 @@ class WebCrawler:
                 verbose=False  # Disable verbose to avoid Windows encoding issues
             )
             
+            # Add exclude selectors if provided
+            if self.config.exclude_selectors:
+                exclude_selector_string = ','.join(self.config.exclude_selectors)
+                run_config.excluded_selector = exclude_selector_string
+            
             result = await crawler.arun(url=url, config=run_config)
             
             if result.success:

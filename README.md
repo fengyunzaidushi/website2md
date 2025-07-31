@@ -22,6 +22,7 @@ Website2MD 是一个强大的网站内容抓取和转换工具，专门用于将
 - ⚡ **High Performance**: Async processing with smart concurrency
 - 🎯 **Content Selection**: Advanced CSS selectors and exclude patterns
 - 🔒 **Precise Domain Filtering**: Only crawl exact same subdomain by default, with flexible domain control
+- 🚫 **Content Filtering**: Exclude unwanted elements using CSS selectors (ads, popups, navigation, etc.)
 
 ## Installation
 
@@ -99,6 +100,18 @@ website2md https://docs.anthropic.com/zh-CN/docs \
 # Allow all external domains (use with caution)
 website2md https://docs.anthropic.com/zh-CN/docs \
   --allow-external \
+  --output ./docs
+
+# Content filtering: Exclude unwanted elements using CSS selectors
+website2md https://example.com \
+  --exclude-selectors ".advertisement,.popup,.cookie-banner" \
+  --output ./clean-content
+
+# Combine multiple options for precise control
+website2md https://docs.example.com \
+  --type docs \
+  --exclude-selectors "nav,.sidebar,.toc" \
+  --max-pages 20 \
   --output ./docs
 
 # Windows users: Use UTF-8 encoding to avoid codec errors

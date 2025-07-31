@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.7] - 2025-07-31
+
+### 🎯 新增功能 (New Features)
+
+#### 内容过滤系统 (Content Filtering System)
+- **新增 `--exclude-selectors` 参数**：支持使用CSS选择器排除不需要的内容
+- **多选择器支持**：可以同时指定多个选择器，用逗号分隔
+- **智能合并**：对于docs类型，用户指定的选择器会与默认的文档站选择器合并
+- **全类型支持**：site、docs、list三种爬取类型都支持内容排除
+
+#### 使用示例
+```bash
+# 排除广告和弹窗
+website2md https://example.com --exclude-selectors ".advertisement,.popup,.cookie-banner"
+
+# 排除导航和侧边栏
+website2md https://docs.example.com --exclude-selectors "nav,.sidebar"
+
+# 组合使用其他参数
+website2md https://site.com --type site --exclude-selectors ".ads,.footer" --max-pages 10
+```
+
+#### 技术实现
+- 通过crawl4ai的`excluded_selector`参数实现内容排除
+- 支持任何有效的CSS选择器语法
+- 在页面处理阶段就移除匹配的元素，提高效率
+
+---
+
 ## [0.1.6] - 2025-07-31
 
 ### 🐛 重要修复 (Critical Bug Fixes)
