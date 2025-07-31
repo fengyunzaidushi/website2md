@@ -10,7 +10,12 @@
       "Bash(python:*)",
       "Bash(chcp:*)",
       "Bash(set PYTHONIOENCODING=utf-8)",
-      "Bash(PYTHONIOENCODING=utf-8 website2md \"https://docs.cursor.com/en/get-started/concepts\" --output ./test_output3 --verbose)"
+      "Bash(PYTHONIOENCODING=utf-8 website2md \"https://docs.cursor.com/en/get-started/concepts\" --output ./test_output3 --verbose)",
+      "Bash(rm:*)",
+      "Bash(.venv/Scripts/pip install:*)",
+      "Bash(PYTHONIOENCODING=utf-8 python test_domain_filtering.py)",
+      "Bash(PYTHONIOENCODING=utf-8 website2md \"https://docs.anthropic.com/zh-CN/docs/claude-code/cli-reference\" --output ./test_domain_filter --max-pages 10 --verbose)",
+      "Bash(PYTHONIOENCODING=utf-8 website2md --help)"
     ],
     "deny": []
   }

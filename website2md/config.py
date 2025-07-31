@@ -37,6 +37,11 @@ class CrawlConfig:
     allowed_domains: Optional[List[str]] = None
     blocked_domains: Optional[List[str]] = None
     
+    # Domain filtering settings
+    allow_external_domains: bool = False  # Allow crawling external domains
+    restrict_to_base_domain: bool = True  # Only crawl same base domain as start URL
+    additional_allowed_domains: Optional[List[str]] = None  # Additional domains to allow
+    
     # Output settings
     output_format: str = "json"
     output_file: Optional[str] = None

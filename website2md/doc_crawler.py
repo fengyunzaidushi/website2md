@@ -289,7 +289,9 @@ class DocSiteCrawler:
                                 
                             if href:
                                 full_url = urljoin(url, href)
-                                if is_valid_url(full_url) and self._is_documentation_url(full_url):
+                                if (is_valid_url(full_url) and 
+                                    self._is_documentation_url(full_url) and
+                                    self._should_crawl_url(full_url, url)):
                                     discovered_urls.add(normalize_url(full_url))
                     
                     logger.info(f"Found {len(discovered_urls)} total documentation URLs after comprehensive extraction")
@@ -368,7 +370,8 @@ class DocSiteCrawler:
                             '@-symbols', 'background-agent', 'more'
                         ])):
                         full_url = f"{base_url_clean}/{path}"
-                        if self._is_documentation_url(full_url):
+                        if (self._is_documentation_url(full_url) and
+                            self._should_crawl_url(full_url, base_url)):
                             discovered_urls.add(normalize_url(full_url))
             
             logger.info(f"JSON extraction found {len(discovered_urls)} unique URLs")
@@ -377,6 +380,25 @@ class DocSiteCrawler:
             logger.warning(f"Error extracting URLs from JSON navigation: {str(e)}")
         
         return discovered_urls
+    
+    def _should_crawl_url(self, target_url: str, base_url: str) -> bool:
+        """
+        Check if a URL should be crawled based on domain filtering rules.
+        
+        Args:
+            target_url: URL to check for crawling
+            base_url: Original/base URL provided by user
+            
+        Returns:
+            True if URL should be crawled, False otherwise
+        """
+        from .utils import should_crawl_url
+        return should_crawl_url(
+            target_url=target_url,
+            base_url=base_url,
+            allow_external_domains=self.config.allow_external_domains,
+            allowed_domains=self.config.additional_allowed_domains
+        )
     
     def _is_documentation_url(self, url: str) -> bool:
         """

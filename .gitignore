@@ -73,3 +73,4 @@ examples2/
 examples/
 .DS_Store
 test_output*
+test_*

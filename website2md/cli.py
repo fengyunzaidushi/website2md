@@ -32,12 +32,16 @@ logger = logging.getLogger(__name__)
               help='Type: site (full website), docs (documentation), list (URL list)')
 @click.option('--output', '-o', default='output', help='Output directory (default: output)')
 @click.option('--max-pages', '-m', default=100, help='Maximum pages to crawl (default: 100)')
+@click.option('--allow-external', is_flag=True, help='Allow crawling external domains (default: same domain only)')
+@click.option('--allowed-domains', help='Comma-separated list of additional domains to allow (e.g., "api.example.com,console.example.com")')
 @click.option('--verbose', '-v', is_flag=True, help='Enable verbose logging')
 def main(
     input_source: str,
     type: Optional[str],
     output: str,
     max_pages: int,
+    allow_external: bool,
+    allowed_domains: Optional[str],
     verbose: bool
 ):
     """
@@ -78,26 +82,33 @@ def main(
     os.makedirs(output, exist_ok=True)
     
     try:
+        # Parse allowed domains list
+        allowed_domains_list = None
+        if allowed_domains:
+            allowed_domains_list = [domain.strip() for domain in allowed_domains.split(',')]
+            if verbose:
+                click.echo(f"Additional allowed domains: {allowed_domains_list}")
+        
         # Select and configure appropriate crawler
         if type == 'site':
-            crawler = _create_site_crawler(max_pages)
+            crawler = _create_site_crawler(max_pages, allow_external, allowed_domains_list)
             click.echo(f"[SITE] Crawling full website: {input_source}")
             results = asyncio.run(crawler.crawl(input_source))
             
         elif type == 'docs':
-            crawler = _create_docs_crawler(max_pages, output)
+            crawler = _create_docs_crawler(max_pages, output, allow_external, allowed_domains_list)
             click.echo(f"[DOCS] Crawling documentation site: {input_source}")
             results = asyncio.run(crawler.crawl_documentation_site(input_source, output))
             
         elif type == 'list':
             if os.path.isfile(input_source):
                 # URL file
-                crawler = _create_url_file_crawler(max_pages, output)
+                crawler = _create_url_file_crawler(max_pages, output, allow_external, allowed_domains_list)
                 click.echo(f"[FILE] Processing URL file: {input_source}")
                 results = asyncio.run(crawler.crawl_urls_from_file(input_source, output))
             else:
                 # URL list string
-                crawler = _create_url_list_crawler(max_pages, output)
+                crawler = _create_url_list_crawler(max_pages, output, allow_external, allowed_domains_list)
                 click.echo(f"[LIST] Processing URL list")
                 results = asyncio.run(crawler.crawl_url_list(input_source, output))
         
@@ -147,7 +158,7 @@ def _detect_input_type(input_source: str) -> str:
     return 'list'
 
 
-def _create_site_crawler(max_pages: int) -> WebCrawler:
+def _create_site_crawler(max_pages: int, allow_external: bool = False, allowed_domains: list = None) -> WebCrawler:
     """Create crawler for full website crawling"""
     config = CrawlConfig(
         max_depth=3,
@@ -155,6 +166,8 @@ def _create_site_crawler(max_pages: int) -> WebCrawler:
         delay=1.0,
         timeout=30,
         follow_external_links=False,
+        allow_external_domains=allow_external,
+        additional_allowed_domains=allowed_domains,
         javascript_enabled=True,
         max_concurrent_requests=5,
         output_format='json'
@@ -162,7 +175,7 @@ def _create_site_crawler(max_pages: int) -> WebCrawler:
     return WebCrawler(config)
 
 
-def _create_docs_crawler(max_pages: int, output_dir: str) -> DocSiteCrawler:
+def _create_docs_crawler(max_pages: int, output_dir: str, allow_external: bool = False, allowed_domains: list = None) -> DocSiteCrawler:
     """Create crawler for documentation sites"""
     config = CrawlConfig(
         max_pages=max_pages,
@@ -170,6 +183,8 @@ def _create_docs_crawler(max_pages: int, output_dir: str) -> DocSiteCrawler:
         js_wait_time=3.0,
         expand_menus=True,
         scroll_for_content=True,
+        allow_external_domains=allow_external,
+        additional_allowed_domains=allowed_domains,
         exclude_selectors=[
             '.sidebar', '.nav', '.navigation', '#sidebar',
             '#starlight__sidebar', '.docs-sidebar', '.theme-doc-sidebar-container',
@@ -182,24 +197,28 @@ def _create_docs_crawler(max_pages: int, output_dir: str) -> DocSiteCrawler:
     return DocSiteCrawler(config)
 
 
-def _create_url_file_crawler(max_pages: int, output_dir: str) -> URLFileCrawler:
+def _create_url_file_crawler(max_pages: int, output_dir: str, allow_external: bool = False, allowed_domains: list = None) -> URLFileCrawler:
     """Create crawler for URL file processing"""
     config = CrawlConfig(
         max_pages=max_pages,
         wait_for_content=True,
         js_wait_time=2.0,
+        allow_external_domains=allow_external,
+        additional_allowed_domains=allowed_domains,
         headless=True,
         timeout=30
     )
     return URLFileCrawler(config)
 
 
-def _create_url_list_crawler(max_pages: int, output_dir: str) -> URLListCrawler:
+def _create_url_list_crawler(max_pages: int, output_dir: str, allow_external: bool = False, allowed_domains: list = None) -> URLListCrawler:
     """Create crawler for URL list processing"""
     config = CrawlConfig(
         max_pages=max_pages,
         wait_for_content=True,
         js_wait_time=2.0,
+        allow_external_domains=allow_external,
+        additional_allowed_domains=allowed_domains,
         headless=True,
         timeout=30
     )

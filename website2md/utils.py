@@ -154,6 +154,122 @@ def extract_domain(url: str) -> str:
         return ""
 
 
+def extract_base_domain(url: str) -> str:
+    """
+    Extract base domain from URL, handling subdomains properly.
+    
+    Examples:
+        https://docs.anthropic.com/zh-CN/docs -> anthropic.com
+        https://console.anthropic.com/legal -> anthropic.com  
+        https://api.openai.com/v1/chat -> openai.com
+        https://platform.openai.com/docs -> openai.com
+    
+    Args:
+        url: Full URL string
+        
+    Returns:
+        Base domain string (e.g., "anthropic.com")
+    """
+    try:
+        domain = extract_domain(url)
+        if not domain:
+            return ""
+            
+        # Common domain suffixes (TLDs and common extensions)
+        domain_suffixes = [
+            '.com', '.ai', '.so', '.dev', '.online', '.org', '.net', 
+            '.cn', '.info', '.app', '.io', '.xyz', '.co', '.run', 
+            '.me', '.pro', '.top', '.edu', '.gov', '.mil'
+        ]
+        
+        # Split domain into parts
+        parts = domain.split('.')
+        
+        # Handle cases like "domain.co.uk", "domain.com.cn" etc.
+        # Look for known suffixes and preserve them
+        for suffix in domain_suffixes:
+            if domain.endswith(suffix):
+                suffix_parts = suffix[1:].split('.')  # Remove leading dot and split
+                if len(parts) >= len(suffix_parts) + 1:
+                    # Take the domain name + suffix
+                    base_parts = parts[-(len(suffix_parts) + 1):]
+                    return '.'.join(base_parts)
+        
+        # Fallback: take last two parts if we have them
+        if len(parts) >= 2:
+            return '.'.join(parts[-2:])
+        
+        return domain
+        
+    except Exception as e:
+        logger.debug(f"Error extracting base domain from {url}: {e}")
+        return ""
+
+
+def is_same_base_domain(url1: str, url2: str) -> bool:
+    """
+    Check if two URLs belong to the same base domain.
+    
+    Examples:
+        docs.anthropic.com and console.anthropic.com -> True (both anthropic.com)
+        docs.anthropic.com and docs.openai.com -> False (different base domains)
+    
+    Args:
+        url1: First URL to compare
+        url2: Second URL to compare
+        
+    Returns:
+        True if same base domain, False otherwise
+    """
+    try:
+        base1 = extract_base_domain(url1)
+        base2 = extract_base_domain(url2)
+        
+        return base1 and base2 and base1 == base2
+    except Exception:
+        return False
+
+
+def should_crawl_url(target_url: str, base_url: str, allow_external_domains: bool = False, allowed_domains: list = None) -> bool:
+    """
+    Determine if a URL should be crawled based on domain filtering rules.
+    
+    Args:
+        target_url: URL to check for crawling
+        base_url: Original/base URL provided by user  
+        allow_external_domains: Whether to allow crawling external domains
+        allowed_domains: List of additional domains to allow (optional)
+        
+    Returns:
+        True if URL should be crawled, False otherwise
+    """
+    try:
+        # Basic URL validation
+        if not is_valid_url(target_url) or not is_valid_url(base_url):
+            return False
+            
+        target_domain = extract_domain(target_url)
+        base_domain = extract_domain(base_url)
+        
+        # If external domains are explicitly allowed, crawl everything
+        if allow_external_domains:
+            return True
+            
+        # Check if exact same domain (including subdomain)
+        if target_domain == base_domain:
+            return True
+            
+        # Check if target domain is in allowed domains list
+        if allowed_domains and target_domain in allowed_domains:
+            return True
+            
+        return False
+        
+    except Exception as e:
+        logger.debug(f"Error checking if should crawl {target_url}: {e}")
+        return False
+
+
 def clean_text(text: str) -> str:
     """Clean and normalize text content"""
     if not text:
